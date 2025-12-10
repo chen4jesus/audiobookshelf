@@ -26,6 +26,10 @@ class PlaylistController {
    * @param {Response} res
    */
   async create(req, res) {
+    if (req.user.isGuest) {
+      Logger.warn(`[PlaylistController] Guest user "${req.user.username}" attempted to create a playlist`)
+      return res.status(403).send('Guest users cannot create playlists. Please log in to create a playlist.')
+    }
     const reqBody = req.body || {}
 
     // Validation
@@ -498,6 +502,10 @@ class PlaylistController {
    * @param {Response} res
    */
   async createFromCollection(req, res) {
+    if (req.user.isGuest) {
+      Logger.warn(`[PlaylistController] Guest user "${req.user.username}" attempted to create a playlist from collection`)
+      return res.status(403).send('Guest users cannot create playlists. Please log in to create a playlist.')
+    }
     const collection = await Database.collectionModel.findByPk(req.params.collectionId)
     if (!collection) {
       return res.status(404).send('Collection not found')

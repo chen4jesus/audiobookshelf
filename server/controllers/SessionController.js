@@ -312,7 +312,18 @@ class SessionController {
       return res.sendStatus(500)
     }
 
-    const user = await Database.userModel.getUserById(playbackSession.userId)
+    let user = null
+    if (playbackSession.userId.startsWith('guest')) {
+      user = { username: 'Guest' }
+    } else {
+      user = await Database.userModel.getUserById(playbackSession.userId)
+    }
+
+    if (!user) {
+      Logger.error(`[SessionController] Unable to find user for session "${req.params.id}"`)
+      return res.sendStatus(500)
+    }
+
     Logger.debug(`[SessionController] Serving audio track ${audioTrack.index} for session "${req.params.id}" belonging to user "${user.username}"`)
 
     if (global.XAccel) {

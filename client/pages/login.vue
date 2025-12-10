@@ -60,12 +60,13 @@
             </div>
           </form>
 
-          <div v-if="login_local && login_openid" class="w-full h-px bg-white/10 my-4" />
+          <div v-if="login_local && (login_openid || login_guest)" class="w-full h-px bg-white/10 my-4" />
 
-          <div class="w-full flex py-3">
+          <div class="w-full flex flex-col py-3 gap-3">
             <a v-if="login_openid" :href="openidAuthUri" class="w-full abs-btn outline-hidden rounded-md shadow-md relative border border-gray-600 text-center bg-primary text-white px-8 py-2 leading-none">
               {{ openIDButtonText }}
             </a>
+            <button v-if="login_guest" @click="submitGuest" class="w-full abs-btn outline-hidden rounded-md shadow-md relative border border-gray-600 text-center bg-primary text-white px-8 py-2 leading-none">{{ $strings.ButtonContinueAsGuest }}</button>
           </div>
         </div>
       </div>
@@ -139,6 +140,9 @@ export default {
     },
     loginCustomMessage() {
       return this.authFormData?.authLoginCustomMessage || null
+    },
+    login_guest() {
+      return this.authFormData?.authGuestAccess || false
     }
   },
   methods: {
@@ -210,6 +214,23 @@ export default {
         password: this.password || ''
       }
       const authRes = await this.$axios.$post('/login', payload).catch((error) => {
+        console.error('Failed', error.response)
+        if (error.response) this.error = error.response.data
+        else this.error = 'Unknown Error'
+        return false
+      })
+
+      if (authRes?.error) {
+        this.error = authRes.error
+      } else if (authRes) {
+        this.setUser(authRes)
+      }
+      this.processing = false
+    },
+    async submitGuest() {
+      this.error = null
+      this.processing = true
+      const authRes = await this.$axios.$post('/login/guest').catch((error) => {
         console.error('Failed', error.response)
         if (error.response) this.error = error.response.data
         else this.error = 'Unknown Error'

@@ -21,6 +21,12 @@
       </div>
       <div class="w-full border border-white/10 rounded-xl p-4 my-4 bg-primary/25">
         <div class="flex items-center">
+          <ui-checkbox v-model="enableGuestAccess" checkbox-bg="bg" />
+          <p class="text-lg pl-4">{{ $strings.HeaderGuestAccess }}</p>
+        </div>
+      </div>
+      <div class="w-full border border-white/10 rounded-xl p-4 my-4 bg-primary/25">
+        <div class="flex items-center">
           <ui-checkbox v-model="enableOpenIDAuth" checkbox-bg="bg" />
           <p class="text-lg pl-4">{{ $strings.HeaderOpenIDConnectAuthentication }}</p>
           <ui-tooltip :text="$strings.LabelClickForMoreInfo" class="inline-flex ml-2">
@@ -153,6 +159,7 @@ export default {
   data() {
     return {
       enableLocalAuth: false,
+      enableGuestAccess: false,
       enableOpenIDAuth: false,
       showCustomLoginMessage: false,
       savingSettings: false,
@@ -323,8 +330,8 @@ export default {
       return isValid
     },
     async saveSettings() {
-      if (!this.enableLocalAuth && !this.enableOpenIDAuth) {
-        this.$toast.error('Must have at least one authentication method enabled')
+      if (!this.enableLocalAuth && !this.enableOpenIDAuth && !this.enableGuestAccess) {
+        this.$toast.error('Must have at least one Admin authentication method enabled (Password or OpenID)')
         return
       }
 
@@ -339,6 +346,7 @@ export default {
       this.newAuthSettings.authActiveAuthMethods = []
       if (this.enableLocalAuth) this.newAuthSettings.authActiveAuthMethods.push('local')
       if (this.enableOpenIDAuth) this.newAuthSettings.authActiveAuthMethods.push('openid')
+      this.newAuthSettings.authGuestAccess = this.enableGuestAccess
 
       this.savingSettings = true
       this.$axios
@@ -365,6 +373,7 @@ export default {
         authOpenIDSubfolderForRedirectURLs: this.authSettings.authOpenIDSubfolderForRedirectURLs === undefined ? this.$config.routerBasePath : this.authSettings.authOpenIDSubfolderForRedirectURLs
       }
       this.enableLocalAuth = this.authMethods.includes('local')
+      this.enableGuestAccess = !!this.authSettings.authGuestAccess
       this.enableOpenIDAuth = this.authMethods.includes('openid')
       this.showCustomLoginMessage = !!this.authSettings.authLoginCustomMessage
     }

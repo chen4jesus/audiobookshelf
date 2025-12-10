@@ -162,6 +162,15 @@ class TokenManager {
     const ipAddress = requestIp.getClientIp(req)
     const userAgent = req.headers['user-agent']
     const accessToken = this.generateTempAccessToken(user)
+
+    if (user.id.startsWith('guest')) {
+      return {
+        accessToken,
+        refreshToken: null,
+        session: null
+      }
+    }
+
     const refreshToken = this.generateRefreshToken(user)
 
     // Calculate expiration time for the refresh token
@@ -245,6 +254,15 @@ class TokenManager {
       }
 
       // load user by id from the jwt token
+      if (jwt_payload.userId.startsWith('guest')) {
+        if (global.ServerSettings && global.ServerSettings.authGuestAccess) {
+          done(null, Database.userModel.createGuestUser(jwt_payload.userId))
+          return
+        }
+        done(null, null)
+        return
+      }
+
       const user = await Database.userModel.getUserByIdOrOldId(jwt_payload.userId)
 
       if (!user?.isActive) {

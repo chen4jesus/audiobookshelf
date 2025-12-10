@@ -147,6 +147,8 @@ class ServerSettings {
     this.authOpenIDAdvancedPermsClaim = settings.authOpenIDAdvancedPermsClaim || ''
     this.authOpenIDSubfolderForRedirectURLs = settings.authOpenIDSubfolderForRedirectURLs
 
+    this.authGuestAccess = !!settings.authGuestAccess
+
     if (!Array.isArray(this.authActiveAuthMethods)) {
       this.authActiveAuthMethods = ['local']
     }
@@ -255,7 +257,8 @@ class ServerSettings {
       authOpenIDMobileRedirectURIs: this.authOpenIDMobileRedirectURIs, // Do not return to client
       authOpenIDGroupClaim: this.authOpenIDGroupClaim, // Do not return to client
       authOpenIDAdvancedPermsClaim: this.authOpenIDAdvancedPermsClaim, // Do not return to client
-      authOpenIDSubfolderForRedirectURLs: this.authOpenIDSubfolderForRedirectURLs
+      authOpenIDSubfolderForRedirectURLs: this.authOpenIDSubfolderForRedirectURLs,
+      authGuestAccess: this.authGuestAccess
     }
   }
 
@@ -302,6 +305,7 @@ class ServerSettings {
       authOpenIDGroupClaim: this.authOpenIDGroupClaim, // Do not return to client
       authOpenIDAdvancedPermsClaim: this.authOpenIDAdvancedPermsClaim, // Do not return to client
       authOpenIDSubfolderForRedirectURLs: this.authOpenIDSubfolderForRedirectURLs,
+      authGuestAccess: this.authGuestAccess,
 
       authOpenIDSamplePermissions: User.getSampleAbsPermissions()
     }
@@ -309,7 +313,8 @@ class ServerSettings {
 
   get authFormData() {
     const clientFormData = {
-      authLoginCustomMessage: this.authLoginCustomMessage
+      authLoginCustomMessage: this.authLoginCustomMessage,
+      authGuestAccess: this.authGuestAccess
     }
     if (this.authActiveAuthMethods.includes('openid')) {
       clientFormData.authOpenIDButtonText = this.authOpenIDButtonText

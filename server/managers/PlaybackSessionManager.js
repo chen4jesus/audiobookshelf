@@ -56,6 +56,14 @@ class PlaybackSessionManager {
     const deviceInfo = new DeviceInfo()
     deviceInfo.setData(ip, ua, clientDeviceInfo, serverVersion, req.user?.id)
 
+    // Do not persist device for guest users
+    if (req.user?.isGuest) {
+      if (clientDeviceInfo?.deviceId) {
+        deviceInfo.id = clientDeviceInfo.deviceId
+      }
+      return deviceInfo
+    }
+
     if (clientDeviceInfo?.deviceId) {
       const existingDevice = await Database.deviceModel.getOldDeviceByDeviceId(clientDeviceInfo.deviceId)
       if (existingDevice) {
@@ -432,6 +440,9 @@ class PlaybackSessionManager {
 
   saveSession(session) {
     if (!session.timeListening) return // Do not save a session with no listening time
+    if (session.userId.startsWith('guest')) {
+      return Promise.resolve()
+    }
 
     if (session.lastSave) {
       return Database.updatePlaybackSession(session)

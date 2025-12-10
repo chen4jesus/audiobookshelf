@@ -258,8 +258,18 @@ class SocketAuthority {
       return socket.emit('auth_failed', { message: 'Invalid token' })
     }
 
-    // get the user via the id from the decoded jwt.
-    const user = await Database.userModel.getUserByIdOrOldId(token_data.userId)
+    let user = null
+    if (token_data.userId.startsWith('guest')) {
+      if (!global.ServerSettings.authGuestAccess) {
+        Logger.error('Cannot validate socket - guest access disabled')
+        return socket.emit('auth_failed', { message: 'Guest access disabled' })
+      }
+      user = Database.userModel.createGuestUser(token_data.userId)
+    } else {
+      // get the user via the id from the decoded jwt.
+      user = await Database.userModel.getUserByIdOrOldId(token_data.userId)
+    }
+
     if (!user) {
       // user not found
       Logger.error('Cannot validate socket - invalid token')
@@ -293,7 +303,9 @@ class SocketAuthority {
 
     // Update user lastSeen without firing sequelize bulk update hooks
     user.lastSeen = Date.now()
-    await user.save({ hooks: false })
+    if (!user.isGuest) {
+      await user.save({ hooks: false })
+    }
 
     const initialPayload = {
       userId: client.user.id,

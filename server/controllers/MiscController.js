@@ -687,6 +687,13 @@ class MiscController {
           Database.serverSettings[key] = uris
           hasUpdates = true
         }
+      } else if (key === 'authGuestAccess') {
+        const updatedValue = !!settingsUpdate[key]
+        if (updatedValue !== currentAuthenticationSettings[key]) {
+          Logger.debug(`[MiscController] Updating auth settings key "${key}" from "${currentAuthenticationSettings[key]}" to "${updatedValue}"`)
+          Database.serverSettings[key] = updatedValue
+          hasUpdates = true
+        }
       } else {
         const updatedValueType = typeof settingsUpdate[key]
         if (['authOpenIDAutoLaunch', 'authOpenIDAutoRegister'].includes(key)) {

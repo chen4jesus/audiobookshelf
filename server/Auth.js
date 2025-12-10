@@ -1,4 +1,5 @@
 const { Request, Response, NextFunction } = require('express')
+const uuidv4 = require('uuid').v4
 const passport = require('passport')
 const JwtStrategy = require('passport-jwt').Strategy
 const ExtractJwt = require('passport-jwt').ExtractJwt
@@ -59,7 +60,40 @@ class Auth {
    * @param {NextFunction} next
    */
   isAuthenticated(req, res, next) {
-    return passport.authenticate('jwt', { session: false })(req, res, next)
+    return passport.authenticate('jwt', { session: false }, (err, user, info) => {
+      if (err) {
+        return next(err)
+      }
+
+      if (user) {
+        req.user = user
+        return next()
+      }
+
+      // Check for guest access
+      // Global ServerSettings are loaded
+      if (!user) {
+        // Check if guest access is enabled
+        if (global.ServerSettings.authGuestAccess) {
+          // If no token, or invalid token, create a NEW guest user for this request
+          // Note: This user is transient and not persisted.
+          // Since we don't have a token to identify a specific guest session,
+          // we create a new one. This might reset "sessions" for stateless requests,
+          // but for consistent guest experience, clients should use /login/guest to get a token.
+          // Fallback only:
+          req.user = Database.userModel.createGuestUser(`guest-${uuidv4()}`)
+          return next()
+        }
+      }
+
+      // If we are here, authentication failed and no guest access
+      if (info && info.message === 'No auth token') {
+        return res.status(401).send('Unauthorized')
+      }
+
+      // If token provided but invalid (expired etc), return 401
+      return res.status(401).send(info?.message || 'Unauthorized')
+    })(req, res, next)
   }
 
   /**
@@ -321,6 +355,21 @@ class Auth {
       // Check if mobile app wants refresh token in response
       const returnTokens = req.headers['x-return-tokens'] === 'true'
 
+      const userResponse = await this.handleLoginSuccess(req, res, returnTokens)
+      res.json(userResponse)
+    })
+
+    // Guest login route
+    router.post('/login/guest', this.authRateLimiter, async (req, res) => {
+      if (!global.ServerSettings.authGuestAccess) {
+        return res.sendStatus(403)
+      }
+
+      const guestId = `guest-${uuidv4()}`
+      const user = Database.userModel.createGuestUser(guestId)
+      req.user = user
+
+      const returnTokens = req.headers['x-return-tokens'] === 'true'
       const userResponse = await this.handleLoginSuccess(req, res, returnTokens)
       res.json(userResponse)
     })

@@ -210,6 +210,32 @@ class User extends Model {
     return this.create(newUser)
   }
 
+  get isGuest() {
+    return this.type === 'guest'
+  }
+
+  /**
+   * Create guest user object
+   * @param {string} [guestId]
+   * @returns {User}
+   */
+  static createGuestUser(guestId = 'guest') {
+    const newUser = {
+      id: guestId,
+      username: 'Guest',
+      type: 'guest',
+      pash: '',
+      email: '',
+      isActive: true,
+      lastSeen: null,
+      createdAt: new Date(),
+      permissions: this.getDefaultPermissionsForUserType('guest'),
+      bookmarks: [],
+      extraData: {}
+    }
+    return this.build(newUser)
+  }
+
   /**
    * Finds an existing user by OpenID subject identifier, or by email/username based on server settings
    * Returns null if no user is found
@@ -729,6 +755,12 @@ class User extends Model {
    * @returns {Promise<{ mediaProgress: import('./MediaProgress'), error: [string], statusCode: [number] }>}
    */
   async createUpdateMediaProgressFromPayload(progressPayload) {
+    if (this.isGuest) {
+      return {
+        mediaProgress: null
+      }
+    }
+
     /** @type {import('./MediaProgress')|null} */
     let mediaProgress = null
     let mediaItemId = null
@@ -845,6 +877,8 @@ class User extends Model {
    * @returns {Promise<AudioBookmarkObject>}
    */
   async createBookmark(libraryItemId, time, title) {
+    if (this.isGuest) return null
+
     const existingBookmark = this.findBookmark(libraryItemId, time)
     if (existingBookmark) {
       Logger.warn('[User] Create Bookmark already exists for this time')
@@ -877,6 +911,8 @@ class User extends Model {
    * @returns {Promise<AudioBookmarkObject>}
    */
   async updateBookmark(libraryItemId, time, title) {
+    if (this.isGuest) return null
+
     const bookmark = this.findBookmark(libraryItemId, time)
     if (!bookmark) {
       Logger.error(`[User] updateBookmark not found`)
@@ -896,6 +932,8 @@ class User extends Model {
    * @returns {Promise<boolean>} - true if bookmark was removed
    */
   async removeBookmark(libraryItemId, time) {
+    if (this.isGuest) return false
+
     if (!this.findBookmark(libraryItemId, time)) {
       Logger.error(`[User] removeBookmark not found`)
       return false
@@ -912,6 +950,8 @@ class User extends Model {
    * @returns {Promise<boolean>}
    */
   async addSeriesToHideFromContinueListening(seriesId) {
+    if (this.isGuest) return false
+
     if (!this.extraData) this.extraData = {}
     const seriesHideFromContinueListening = this.extraData.seriesHideFromContinueListening || []
     if (seriesHideFromContinueListening.includes(seriesId)) return false
@@ -928,6 +968,8 @@ class User extends Model {
    * @returns {Promise<boolean>}
    */
   async removeSeriesFromHideFromContinueListening(seriesId) {
+    if (this.isGuest) return false
+
     if (!this.extraData) this.extraData = {}
     let seriesHideFromContinueListening = this.extraData.seriesHideFromContinueListening || []
     if (!seriesHideFromContinueListening.includes(seriesId)) return false
