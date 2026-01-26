@@ -1,6 +1,23 @@
 <template>
   <div class="embed-container" :style="{ backgroundColor: bgColor }">
-    <player-embed-player-mini :title="displayTitle" :author="displayAuthor" :cover-url="coverUrl" :current-time="currentTime" :duration="totalDuration" :paused="isPaused" :loading="!hasLoaded" :theme="theme" :accent-color="accentColor" :jump-amount="jumpAmount" @playPause="playPause" @jumpForward="jumpForward" @jumpBackward="jumpBackward" @seek="seek" />
+    <player-embed-player-mini
+      :title="displayTitle"
+      :author="displayAuthor"
+      :cover-url="coverUrl"
+      :current-time="currentTime"
+      :duration="totalDuration"
+      :paused="isPaused"
+      :loading="!hasLoaded"
+      :theme="theme"
+      :accent-color="accentColor"
+      :jump-amount="jumpAmount"
+      :playback-rate="playbackRate"
+      @playPause="playPause"
+      @jumpForward="jumpForward"
+      @jumpBackward="jumpBackward"
+      @seek="seek"
+      @setPlaybackRate="setPlaybackRate"
+    />
   </div>
 </template>
 
@@ -26,7 +43,8 @@ export default {
     return {
       mediaItemShare: mediaItemShare,
       theme: query.theme || 'dark',
-      accentColor: query.accent ? `#${query.accent}` : '#4ade80'
+      accentColor: query.accent ? `#${query.accent}` : '#4ade80',
+      playbackRate: query.sp ? parseFloat(query.sp) : 1
     }
   },
   data() {
@@ -105,6 +123,11 @@ export default {
       this.localAudioPlayer.seek(time, this.isPlaying)
       this.currentTime = time
     },
+    setPlaybackRate(rate) {
+      if (!this.localAudioPlayer) return
+      this.playbackRate = rate
+      this.localAudioPlayer.setPlaybackRate(rate)
+    },
     setCurrentTime(time) {
       this.currentTime = time
     },
@@ -175,6 +198,10 @@ export default {
     this.localAudioPlayer.on('timeupdate', this.playerTimeUpdate.bind(this))
     this.localAudioPlayer.on('error', this.playerError.bind(this))
     this.localAudioPlayer.on('finished', this.playerFinished.bind(this))
+
+    if (this.playbackRate !== 1) {
+      this.localAudioPlayer.setPlaybackRate(this.playbackRate)
+    }
   },
   beforeDestroy() {
     this.localAudioPlayer.off('stateChange', this.playerStateChange.bind(this))

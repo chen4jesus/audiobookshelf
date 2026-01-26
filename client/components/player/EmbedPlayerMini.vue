@@ -42,6 +42,14 @@
           <button class="embed-btn" @click="jumpForward" :title="'Forward ' + jumpAmount + 's'">
             <span class="material-symbols">forward_media</span>
           </button>
+          <div class="embed-speed-control">
+            <button class="embed-btn embed-speed-btn" @click.stop="toggleSpeedMenu" title="Playback Speed">
+              <span class="embed-speed-text">{{ currentPlaybackRate }}x</span>
+            </button>
+            <div v-if="showSpeedMenu" class="embed-speed-menu">
+              <button v-for="rate in playbackRates" :key="rate" class="embed-speed-item" :class="{ active: rate === currentPlaybackRate }" @click="selectPlaybackRate(rate)">{{ rate }}x</button>
+            </div>
+          </div>
         </div>
         <span class="embed-time embed-time-duration">{{ durationFormatted }}</span>
       </div>
@@ -82,6 +90,16 @@ export default {
     jumpAmount: {
       type: Number,
       default: 10
+    },
+    playbackRate: {
+      type: Number,
+      default: 1
+    }
+  },
+  data() {
+    return {
+      showSpeedMenu: false,
+      playbackRates: [0.5, 1, 1.25, 1.5, 1.75, 2]
     }
   },
   computed: {
@@ -99,6 +117,9 @@ export default {
       return {
         '--accent-color': this.accentColor
       }
+    },
+    currentPlaybackRate() {
+      return this.playbackRate
     }
   },
   methods: {
@@ -126,6 +147,21 @@ export default {
       const percent = (e.clientX - rect.left) / rect.width
       const seekTime = percent * this.duration
       this.$emit('seek', Math.max(0, Math.min(seekTime, this.duration)))
+    },
+    toggleSpeedMenu() {
+      this.showSpeedMenu = !this.showSpeedMenu
+      if (this.showSpeedMenu) {
+        // Close menu when clicking outside
+        document.addEventListener('click', this.closeSpeedMenu)
+      }
+    },
+    closeSpeedMenu() {
+      this.showSpeedMenu = false
+      document.removeEventListener('click', this.closeSpeedMenu)
+    },
+    selectPlaybackRate(rate) {
+      this.$emit('setPlaybackRate', rate)
+      this.showSpeedMenu = false
     }
   }
 }
@@ -336,6 +372,66 @@ export default {
 }
 .embed-btn-play .material-symbols {
   font-size: 22px;
+}
+.embed-speed-control {
+  position: relative;
+}
+.embed-speed-btn {
+  width: auto;
+  min-width: 40px;
+  padding: 0 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.embed-speed-text {
+  font-variant-numeric: tabular-nums;
+}
+.embed-speed-menu {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2d3436;
+  border-radius: 8px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  margin-bottom: 8px;
+  max-height: 100px;
+  overflow-y: auto;
+}
+.embed-speed-item {
+  background: transparent;
+  border: none;
+  color: #d1d5db;
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+  white-space: nowrap;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+.embed-speed-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+.embed-speed-item.active {
+  color: var(--accent-color, #4ade80);
+  background: rgba(74, 222, 128, 0.1);
+}
+.theme-light .embed-speed-menu {
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+.theme-light .embed-speed-item {
+  color: #495057;
+}
+.theme-light .embed-speed-item:hover {
+  background: rgba(0, 0, 0, 0.05);
 }
 
 /* Spin animation */

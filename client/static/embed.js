@@ -31,7 +31,8 @@
   var defaults = {
     height: '120',
     theme: 'dark',
-    accent: '4ade80'
+    accent: '4ade80',
+    speed: '1'
   }
 
   /**
@@ -49,6 +50,7 @@
     var theme = element.dataset.absTheme || defaults.theme
     var accent = element.dataset.absAccent || defaults.accent
     var startTime = element.dataset.absTime || ''
+    var speed = element.dataset.absSpeed || defaults.speed
 
     // Build embed URL
     var embedUrl = baseUrl + '/embed/' + encodeURIComponent(slug)
@@ -57,6 +59,9 @@
     params.push('accent=' + encodeURIComponent(accent.replace('#', '')))
     if (startTime) {
       params.push('t=' + encodeURIComponent(startTime))
+    }
+    if (speed && speed !== '1') {
+      params.push('sp=' + encodeURIComponent(speed))
     }
     embedUrl += '?' + params.join('&')
 
