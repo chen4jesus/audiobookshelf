@@ -19,7 +19,7 @@ import './commands'
 import Vue from 'vue'
 
 import { Constants } from '../../plugins/constants'
-import Strings from '../../strings/en-us.json'
+import Strings from '../../strings/zh-cn.json'
 import '../../plugins/utils'
 import '../../plugins/init.client'
 
@@ -27,7 +27,6 @@ import { mount } from 'cypress/vue2'
 
 //Cypress.Commands.add('mount', mount)
 Cypress.Commands.add('mount', (component, options = {}) => {
-
   Vue.prototype.$constants = Constants
   Vue.prototype.$strings = Strings
 

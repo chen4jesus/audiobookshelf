@@ -1,8 +1,8 @@
 import Vue from 'vue'
-import enUsStrings from '../strings/en-us.json'
+import enUsStrings from '../strings/zh-cn.json'
 import { supplant } from './utils'
 
-const defaultCode = 'en-us'
+const defaultCode = 'zh-cn'
 
 const languageCodeMap = {
   ar: { label: 'عربي', dateFnsLocale: 'ar' },
@@ -82,7 +82,7 @@ Vue.prototype.$podcastSearchRegionOptions = Object.keys(podcastSearchRegionMap).
 })
 
 Vue.prototype.$languageCodes = {
-  default: defaultCode, // en-us
+  default: defaultCode, // zh-cn
   current: defaultCode, // Current language code in use
   local: null, // Language code set at user level
   server: null // Language code set at server level

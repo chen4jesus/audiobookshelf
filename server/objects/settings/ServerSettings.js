@@ -52,7 +52,7 @@ class ServerSettings {
     this.chromecastEnabled = false
     this.dateFormat = 'MM/dd/yyyy'
     this.timeFormat = 'HH:mm'
-    this.language = 'en-us'
+    this.language = 'zh-cn'
     this.allowedOrigins = []
 
     this.logLevel = Logger.logLevel
@@ -120,7 +120,7 @@ class ServerSettings {
     this.chromecastEnabled = !!settings.chromecastEnabled
     this.dateFormat = settings.dateFormat || 'MM/dd/yyyy'
     this.timeFormat = settings.timeFormat || 'HH:mm'
-    this.language = settings.language || 'en-us'
+    this.language = settings.language || 'zh-cn'
     this.allowedOrigins = settings.allowedOrigins || []
     this.logLevel = settings.logLevel || Logger.logLevel
     this.version = settings.version || null
