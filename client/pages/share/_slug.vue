@@ -13,6 +13,13 @@
           <player-ui ref="audioPlayer" :chapters="chapters" :current-chapter="currentChapter" :paused="isPaused" :loading="!hasLoaded" :is-podcast="false" hide-bookmarks hide-sleep-timer @playPause="playPause" @jumpForward="jumpForward" @jumpBackward="jumpBackward" @setVolume="setVolume" @setPlaybackRate="setPlaybackRate" @seek="seek" />
         </div>
 
+        <div class="mt-12 flex justify-center">
+          <button class="flex items-center space-x-2 text-slate-300 hover:text-white transition-colors py-2 px-6 rounded-full border border-white/10 hover:border-white/20 hover:bg-white/5 active:scale-95" @click="goBack">
+            <span class="material-symbols text-2xl">arrow_back</span>
+            <span class="font-bold tracking-wide uppercase text-sm">{{ $strings.LabelGoBack }}</span>
+          </button>
+        </div>
+
         <ui-tooltip v-if="mediaItemShare.isDownloadable" direction="bottom" :text="$strings.LabelDownload" class="absolute top-0 left-0 m-4">
           <button aria-label="Download" class="text-gray-300 hover:text-white" @click="downloadShareItem"><span class="material-symbols text-2xl sm:text-3xl">download</span></button>
         </ui-tooltip>
@@ -350,6 +357,13 @@ export default {
     },
     downloadShareItem() {
       this.$downloadFile(this.downloadUrl)
+    },
+    goBack() {
+      if (window.history.length > 2) {
+        this.$router.back()
+      } else {
+        this.$router.push('/share')
+      }
     }
   },
   mounted() {

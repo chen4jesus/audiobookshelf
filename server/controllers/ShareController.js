@@ -398,5 +398,201 @@ class ShareController {
       res.status(500).send('Internal server error')
     }
   }
+
+  /**
+   * Public route
+   * GET: /api/shares
+   * Get all active media item shares
+   *
+   * @param {Request} req
+   * @param {Response} res
+   */
+  async getAllPublicMediaItemShares(req, res) {
+    try {
+      const mediaItemShares = await Database.mediaItemShareModel.findAll({
+        where: {
+          [Op.or]: [{ expiresAt: null }, { expiresAt: { [Op.gt]: new Date() } }]
+        },
+        include: [
+          {
+            model: Database.bookModel,
+            include: [{ model: Database.authorModel }]
+          },
+          {
+            model: Database.podcastEpisodeModel,
+            include: [{ model: Database.podcastModel }]
+          }
+        ]
+      })
+
+      const shares = mediaItemShares.map((share) => {
+        let title = 'Unknown'
+        let subtitle = ''
+        if (share.mediaItemType === 'book' && share.mediaItem) {
+          title = share.mediaItem.title
+          subtitle = share.mediaItem.authorName
+        } else if (share.mediaItemType === 'podcastEpisode' && share.mediaItem) {
+          title = share.mediaItem.title
+          subtitle = share.mediaItem.podcast ? share.mediaItem.podcast.title : ''
+        }
+        return {
+          id: share.id,
+          slug: share.slug,
+          mediaItemType: share.mediaItemType,
+          mediaItemId: share.mediaItemId,
+          title,
+          subtitle,
+          expiresAt: share.expiresAt,
+          isDownloadable: share.isDownloadable
+        }
+      })
+
+      res.json(shares)
+    } catch (error) {
+      Logger.error(`[ShareController] Failed to get all public shares`, error)
+      res.status(500).send('Internal server error')
+    }
+  }
+
+  /**
+   * Public route
+   * GET: /api/shares/groups
+   * Get grouped share counts (lightweight - no item details)
+   *
+   * @param {Request} req
+   * @param {Response} res
+   */
+  async getPublicShareGroups(req, res) {
+    try {
+      const { search, initial } = req.query
+
+      const mediaItemShares = await Database.mediaItemShareModel.findAll({
+        where: {
+          [Op.or]: [{ expiresAt: null }, { expiresAt: { [Op.gt]: new Date() } }]
+        },
+        include: [
+          {
+            model: Database.bookModel,
+            include: [{ model: Database.authorModel }]
+          },
+          {
+            model: Database.podcastEpisodeModel,
+            include: [{ model: Database.podcastModel }]
+          }
+        ]
+      })
+
+      // Group by author/podcast and count
+      const groups = {}
+      mediaItemShares.forEach((share) => {
+        let groupName = 'General'
+        let itemTitle = ''
+        if (share.mediaItemType === 'book' && share.mediaItem) {
+          groupName = share.mediaItem.authorName || 'General'
+          itemTitle = share.mediaItem.title || ''
+        } else if (share.mediaItemType === 'podcastEpisode' && share.mediaItem) {
+          groupName = share.mediaItem.podcast ? share.mediaItem.podcast.title : 'General'
+          itemTitle = share.mediaItem.title || ''
+        }
+
+        // Apply server-side filters if provided (now including item titles)
+        const matchesName = groupName.toLowerCase().includes(search ? search.toLowerCase() : '')
+        const matchesTitle = itemTitle.toLowerCase().includes(search ? search.toLowerCase() : '')
+
+        if (search && !matchesName && !matchesTitle) {
+          return
+        }
+
+        if (initial && !groupName.toLowerCase().startsWith(initial.toLowerCase())) {
+          return
+        }
+
+        if (!groups[groupName]) {
+          groups[groupName] = 0
+        }
+        groups[groupName]++
+      })
+
+      // Convert to sorted array
+      const result = Object.entries(groups)
+        .map(([name, count]) => ({ name, count }))
+        .sort((a, b) => a.name.localeCompare(b.name))
+
+      res.json(result)
+    } catch (error) {
+      Logger.error(`[ShareController] Failed to get share groups`, error)
+      res.status(500).send('Internal server error')
+    }
+  }
+
+  /**
+   * Public route
+   * GET: /api/shares/group/:name
+   * Get shares for a specific group (author/podcast)
+   *
+   * @param {Request} req
+   * @param {Response} res
+   */
+  async getPublicSharesByGroup(req, res) {
+    try {
+      const { name } = req.params
+      const decodedName = decodeURIComponent(name)
+
+      const mediaItemShares = await Database.mediaItemShareModel.findAll({
+        where: {
+          [Op.or]: [{ expiresAt: null }, { expiresAt: { [Op.gt]: new Date() } }]
+        },
+        include: [
+          {
+            model: Database.bookModel,
+            include: [{ model: Database.authorModel }]
+          },
+          {
+            model: Database.podcastEpisodeModel,
+            include: [{ model: Database.podcastModel }]
+          }
+        ]
+      })
+
+      // Filter by group name and map to response format
+      const shares = mediaItemShares
+        .filter((share) => {
+          let groupName = 'General'
+          if (share.mediaItemType === 'book' && share.mediaItem) {
+            groupName = share.mediaItem.authorName || 'General'
+          } else if (share.mediaItemType === 'podcastEpisode' && share.mediaItem) {
+            groupName = share.mediaItem.podcast ? share.mediaItem.podcast.title : 'General'
+          }
+          return groupName === decodedName
+        })
+        .map((share) => {
+          let title = 'Unknown'
+          let subtitle = ''
+          if (share.mediaItemType === 'book' && share.mediaItem) {
+            title = share.mediaItem.title
+            subtitle = share.mediaItem.authorName
+          } else if (share.mediaItemType === 'podcastEpisode' && share.mediaItem) {
+            title = share.mediaItem.title
+            subtitle = share.mediaItem.podcast ? share.mediaItem.podcast.title : ''
+          }
+          return {
+            id: share.id,
+            slug: share.slug,
+            mediaItemType: share.mediaItemType,
+            mediaItemId: share.mediaItemId,
+            title,
+            subtitle,
+            expiresAt: share.expiresAt,
+            isDownloadable: share.isDownloadable
+          }
+        })
+
+      res.json(shares)
+    } catch (error) {
+      Logger.error(`[ShareController] Failed to get shares by group`, error)
+      res.status(500).send('Internal server error')
+    }
+  }
 }
+
 module.exports = new ShareController()

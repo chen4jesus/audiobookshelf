@@ -18,6 +18,9 @@ class PublicRouter {
     this.router.get('/share/:slug/cover', ShareController.getMediaItemShareCoverImage.bind(this))
     this.router.get('/share/:slug/download', ShareController.downloadMediaItemShare.bind(this))
     this.router.patch('/share/:slug/progress', ShareController.updateMediaItemShareProgress.bind(this))
+    this.router.get('/shares', ShareController.getAllPublicMediaItemShares.bind(this))
+    this.router.get('/shares/groups', ShareController.getPublicShareGroups.bind(this))
+    this.router.get('/shares/group/:name', ShareController.getPublicSharesByGroup.bind(this))
     this.router.get('/session/:id/track/:index', SessionController.getTrack.bind(this))
   }
 }
