@@ -30,7 +30,7 @@
   // Default configuration
   var defaults = {
     height: '120',
-    theme: 'dark',
+    theme: 'light',
     accent: '4ade80',
     speed: '1'
   }

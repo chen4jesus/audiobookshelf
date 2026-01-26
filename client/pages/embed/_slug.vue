@@ -42,7 +42,7 @@ export default {
 
     return {
       mediaItemShare: mediaItemShare,
-      theme: query.theme || 'dark',
+      theme: query.theme || 'light',
       accentColor: query.accent ? `#${query.accent}` : '#4ade80',
       playbackRate: query.sp ? parseFloat(query.sp) : 1
     }

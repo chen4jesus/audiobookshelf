@@ -42,7 +42,7 @@ export default {
       rendition: null,
       chapters: [],
       ereaderSettings: {
-        theme: 'dark',
+        theme: 'light',
         font: 'serif',
         fontScale: 100,
         lineSpacing: 115,
@@ -103,21 +103,13 @@ export default {
       const isDark = theme === 'dark'
       const isSepia = theme === 'sepia'
 
-      const fontColor = isDark
-        ? '#fff'
-        : isSepia
-        ? '#5b4636'
-        : '#000'
+      const fontColor = isDark ? '#fff' : isSepia ? '#5b4636' : '#000'
 
-      const backgroundColor = isDark
-        ? 'rgb(35 35 35)'
-        : isSepia
-        ? 'rgb(244, 236, 216)'
-        : 'rgb(255, 255, 255)'
+      const backgroundColor = isDark ? 'rgb(35 35 35)' : isSepia ? 'rgb(244, 236, 216)' : 'rgb(255, 255, 255)'
 
       const lineSpacing = this.ereaderSettings.lineSpacing / 100
-      const fontScale   = this.ereaderSettings.fontScale   / 100
-      const textStroke  = this.ereaderSettings.textStroke  / 100
+      const fontScale = this.ereaderSettings.fontScale / 100
+      const textStroke = this.ereaderSettings.textStroke / 100
 
       return {
         '*': {

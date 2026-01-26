@@ -1,5 +1,5 @@
 <template>
-  <div class="embed-player-mini" :class="{ 'theme-light': theme === 'light', 'theme-dark': theme !== 'light' }" :style="containerStyle">
+  <div class="embed-player-mini" :class="{ 'theme-light': theme !== 'dark', 'theme-dark': theme === 'dark' }" :style="containerStyle">
     <!-- Cover Image -->
     <div class="embed-cover" @click="playPause">
       <img v-if="coverUrl" :src="coverUrl" alt="Cover" class="embed-cover-img" />
@@ -81,7 +81,7 @@ export default {
     },
     theme: {
       type: String,
-      default: 'dark'
+      default: 'light'
     },
     accentColor: {
       type: String,
@@ -99,7 +99,7 @@ export default {
   data() {
     return {
       showSpeedMenu: false,
-      playbackRates: [0.5, 1, 1.25, 1.5, 1.75, 2]
+      playbackRates: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
     }
   },
   computed: {
@@ -388,31 +388,30 @@ export default {
 }
 .embed-speed-menu {
   position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: 0;
+  right: 0;
   background: #2d3436;
   border-radius: 8px;
-  padding: 4px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+  padding: 2px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
   z-index: 100;
-  margin-bottom: 8px;
-  max-height: 100px;
+  max-height: 60px;
   overflow-y: auto;
+  min-width: 130px;
 }
 .embed-speed-item {
   background: transparent;
   border: none;
   color: #d1d5db;
-  padding: 4px 12px;
+  padding: 3px 6px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 11px;
+  font-size: 10px;
   white-space: nowrap;
-  text-align: left;
+  text-align: center;
   transition: all 0.2s ease;
 }
 .embed-speed-item:hover {
