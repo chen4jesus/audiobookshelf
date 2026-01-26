@@ -516,7 +516,7 @@ class ShareController {
       // Convert to sorted array
       const result = Object.entries(groups)
         .map(([name, count]) => ({ name, count }))
-        .sort((a, b) => a.name.localeCompare(b.name))
+        .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }))
 
       res.json(result)
     } catch (error) {
@@ -587,7 +587,10 @@ class ShareController {
           }
         })
 
-      res.json(shares)
+      // Sort shares naturally by title
+      const sortedShares = shares.sort((a, b) => a.title.localeCompare(b.title, undefined, { numeric: true, sensitivity: 'base' }))
+
+      res.json(sortedShares)
     } catch (error) {
       Logger.error(`[ShareController] Failed to get shares by group`, error)
       res.status(500).send('Internal server error')
