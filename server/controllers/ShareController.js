@@ -97,16 +97,20 @@ class ShareController {
       }
 
       const shareSessionId = req.cookies.share_session_id || uuid.v4()
+
+      // Check if this is an embed request (via query param or referer)
+      const isEmbedRequest = req.query.embed === 'true' || (req.headers.referer && req.headers.referer.includes('/embed/'))
+
       const clientDeviceInfo = {
-        clientName: 'Abs Web Share',
+        clientName: isEmbedRequest ? 'Abs Web Embed' : 'Abs Web Share',
         deviceId: shareSessionId
       }
       const deviceInfo = await this.playbackSessionManager.getDeviceInfo(req, clientDeviceInfo)
 
       const newPlaybackSession = new PlaybackSession()
-      newPlaybackSession.setData(libraryItem, null, 'web-share', deviceInfo, startTime)
+      newPlaybackSession.setData(libraryItem, null, isEmbedRequest ? 'web-embed' : 'web-share', deviceInfo, startTime)
       newPlaybackSession.audioTracks = publicTracks
-      newPlaybackSession.playMethod = PlayMethod.DIRECTPLAY
+      newPlaybackSession.playMethod = isEmbedRequest ? PlayMethod.EMBEDDING : PlayMethod.DIRECTPLAY
       newPlaybackSession.shareSessionId = shareSessionId
       newPlaybackSession.mediaItemShareId = mediaItemShare.id
       newPlaybackSession.coverAspectRatio = libraryItem.library.settings.coverAspectRatio

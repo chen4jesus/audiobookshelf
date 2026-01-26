@@ -228,8 +228,10 @@ class Server {
       // Allow embedding for /embed/ routes (embeddable player widget)
       const isEmbedRoute = req.path.startsWith('/embed/') || req.path.startsWith(`${global.RouterBasePath}/embed/`)
       if (isEmbedRoute) {
-        // Don't set frame-ancestors for embed routes - allow embedding from anywhere
-        // This is intentional for the embeddable player widget
+        // Explicitly allow embedding
+        res.removeHeader('X-Frame-Options')
+        res.setHeader('Content-Security-Policy', 'frame-ancestors *')
+        res.setHeader('Access-Control-Allow-Origin', '*')
       } else if (!global.ServerSettings.allowIframe) {
         // Prevent clickjacking by disallowing iframes
         res.setHeader('Content-Security-Policy', "frame-ancestors 'self'")

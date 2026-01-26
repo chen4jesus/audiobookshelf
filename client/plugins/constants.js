@@ -1,6 +1,6 @@
 const SupportedFileTypes = {
   image: ['png', 'jpg', 'jpeg', 'webp'],
-  audio: ['m4b', 'mp3', 'm4a', 'flac', 'opus', 'ogg', 'oga', 'mp4', 'aac', 'wma', 'aiff', 'aif','wav', 'webm', 'webma', 'mka', 'awb', 'caf', 'mpeg', 'mpg'],
+  audio: ['m4b', 'mp3', 'm4a', 'flac', 'opus', 'ogg', 'oga', 'mp4', 'aac', 'wma', 'aiff', 'aif', 'wav', 'webm', 'webma', 'mka', 'awb', 'caf', 'mpeg', 'mpg'],
   ebook: ['epub', 'pdf', 'mobi', 'azw3', 'cbr', 'cbz'],
   info: ['nfo'],
   text: ['txt'],
@@ -29,7 +29,8 @@ const PlayMethod = {
   DIRECTPLAY: 0,
   DIRECTSTREAM: 1,
   TRANSCODE: 2,
-  LOCAL: 3
+  LOCAL: 3,
+  EMBEDDING: 4
 }
 
 const SleepTimerTypes = {

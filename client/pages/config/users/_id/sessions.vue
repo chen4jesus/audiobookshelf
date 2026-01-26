@@ -209,6 +209,7 @@ export default {
       else if (playMethod === this.$constants.PlayMethod.TRANSCODE) return 'Transcode'
       else if (playMethod === this.$constants.PlayMethod.DIRECTSTREAM) return 'Direct Stream'
       else if (playMethod === this.$constants.PlayMethod.LOCAL) return 'Local'
+      else if (playMethod === this.$constants.PlayMethod.EMBEDDING) return 'Embedding'
       return 'Unknown'
     },
     async loadSessions(page) {

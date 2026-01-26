@@ -30,7 +30,8 @@ module.exports.PlayMethod = {
   DIRECTPLAY: 0,
   DIRECTSTREAM: 1,
   TRANSCODE: 2,
-  LOCAL: 3
+  LOCAL: 3,
+  EMBEDDING: 4
 }
 
 module.exports.AudioMimeType = {
