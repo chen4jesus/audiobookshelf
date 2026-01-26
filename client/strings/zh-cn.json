@@ -627,6 +627,7 @@
   "LabelSettingsStoreMetadataWithItemHelp": "默认情况下元数据文件存储在/metadata/items文件夹中, 启用此设置将存储元数据在你媒体项目文件夹中",
   "LabelSettingsTimeFormat": "时间格式",
   "LabelShare": "分享",
+  "LabelShowMore": "显示更多节目",
   "LabelShareDownloadableHelp": "允许用户通过共享链接的下载库项目为 zip 文件.",
   "LabelShareOpen": "打开分享",
   "LabelShareURL": "分享 URL",
