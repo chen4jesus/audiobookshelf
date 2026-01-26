@@ -13,6 +13,17 @@ class PublicRouter {
   }
 
   init() {
+    // Middleware to allow embedding for embed routes
+    this.router.use('/share/:slug', (req, res, next) => {
+      // Check if this is being accessed via embed route (via referer or query param)
+      const isEmbed = req.query.embed === 'true' || (req.headers.referer && req.headers.referer.includes('/embed/'))
+      if (isEmbed) {
+        res.setHeader('X-Frame-Options', 'ALLOWALL')
+        res.setHeader('Content-Security-Policy', 'frame-ancestors *')
+      }
+      next()
+    })
+
     this.router.get('/share/:slug', ShareController.getMediaItemShareBySlug.bind(this))
     this.router.get('/share/:slug/track/:index', ShareController.getMediaItemShareAudioTrack.bind(this))
     this.router.get('/share/:slug/cover', ShareController.getMediaItemShareCoverImage.bind(this))

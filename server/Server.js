@@ -225,7 +225,12 @@ class Server {
     const app = express()
 
     app.use((req, res, next) => {
-      if (!global.ServerSettings.allowIframe) {
+      // Allow embedding for /embed/ routes (embeddable player widget)
+      const isEmbedRoute = req.path.startsWith('/embed/') || req.path.startsWith(`${global.RouterBasePath}/embed/`)
+      if (isEmbedRoute) {
+        // Don't set frame-ancestors for embed routes - allow embedding from anywhere
+        // This is intentional for the embeddable player widget
+      } else if (!global.ServerSettings.allowIframe) {
         // Prevent clickjacking by disallowing iframes
         res.setHeader('Content-Security-Policy', "frame-ancestors 'self'")
       }
@@ -396,7 +401,8 @@ class Server {
         '/config/item-metadata-utils/:id',
         '/collection/:id',
         '/playlist/:id',
-        '/share/:slug?'
+        '/share/:slug?',
+        '/embed/:slug'
       ]
       dynamicRoutes.forEach((route) => router.get(route, (req, res) => res.sendFile(Path.join(distPath, 'index.html'))))
     } else {
