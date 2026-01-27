@@ -1,0 +1,17 @@
+﻿# Caddyfile for ListenFaithfully
+
+{$DOMAIN:localhost} {
+@notSocket not path /listenfaithfully/socket.io/*
+encode @notSocket gzip
+
+reverse_proxy audiobookshelf:80 {
+header_up Host {host}
+header_up X-Real-IP {remote_host}
+flush_interval -1
+}
+
+log {
+output file /var/log/caddy/access.log
+format json
+}
+}
