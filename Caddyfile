@@ -1,12 +1,16 @@
 ﻿# Caddyfile for ListenFaithfully
 
 {$DOMAIN:localhost} {
+# Match all paths EXCEPT the socket.io path for compression
+# Compression on web sockets causes transport-close errors
 @notSocket not path /listenfaithfully/socket.io/*
 encode @notSocket gzip
 
 reverse_proxy audiobookshelf:80 {
 header_up Host {host}
 header_up X-Real-IP {remote_host}
+
+# Critical for Socket.io real-time updates
 flush_interval -1
 }
 

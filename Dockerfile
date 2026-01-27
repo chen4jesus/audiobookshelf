@@ -28,7 +28,14 @@ WORKDIR /server
 COPY index.js package* /server/
 COPY /server /server/server/
 
-RUN case "$TARGETPLATFORM" in \
+RUN if [ -z "$TARGETPLATFORM" ]; then \
+  case "$(uname -m)" in \
+  x86_64) TARGETPLATFORM="linux/amd64" ;; \
+  aarch64|arm64) TARGETPLATFORM="linux/arm64" ;; \
+  *) echo "Unsupported architecture: $(uname -m)" && exit 1 ;; \
+  esac; \
+  fi && \
+  case "$TARGETPLATFORM" in \
   "linux/amd64") \
   curl -L -o /tmp/library.zip "https://github.com/mikiher/nunicode-sqlite/releases/download/v1.2/libnusqlite3-linux-musl-x64.zip" ;; \
   "linux/arm64") \
