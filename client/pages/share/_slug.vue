@@ -13,10 +13,14 @@
           <player-ui ref="audioPlayer" :chapters="chapters" :current-chapter="currentChapter" :paused="isPaused" :loading="!hasLoaded" :is-podcast="false" hide-bookmarks hide-sleep-timer @playPause="playPause" @jumpForward="jumpForward" @jumpBackward="jumpBackward" @setVolume="setVolume" @setPlaybackRate="setPlaybackRate" @seek="seek" />
         </div>
 
-        <div class="mt-12 flex justify-center">
+        <div class="mt-12 flex justify-center space-x-4">
           <button class="flex items-center space-x-2 text-slate-300 hover:text-white transition-colors py-2 px-6 rounded-full border border-white/10 hover:border-white/20 hover:bg-white/5 active:scale-95" @click="goBack">
             <span class="material-symbols text-2xl">arrow_back</span>
             <span class="font-bold tracking-wide uppercase text-sm">{{ $strings.LabelGoBack }}</span>
+          </button>
+          <button v-if="chapters.length" class="flex items-center space-x-2 text-slate-300 hover:text-white transition-colors py-2 px-6 rounded-full border border-white/10 hover:border-white/20 hover:bg-white/5 active:scale-95" @click="showChapters">
+            <span class="material-symbols text-2xl">format_list_bulleted</span>
+            <span class="font-bold tracking-wide uppercase text-sm">{{ $strings.LabelMenu }}</span>
           </button>
         </div>
 
@@ -363,6 +367,11 @@ export default {
         this.$router.back()
       } else {
         this.$router.push('/share')
+      }
+    },
+    showChapters() {
+      if (this.$refs.audioPlayer) {
+        this.$refs.audioPlayer.showChapters()
       }
     }
   },
