@@ -11,7 +11,7 @@ export const state = () => ({
     collapseSeries: false,
     collapseBookSeries: false,
     showSubtitles: false,
-    useChapterTrack: false,
+    useChapterTrack: true,
     seriesSortBy: 'name',
     seriesSortDesc: false,
     seriesFilterBy: 'all',
